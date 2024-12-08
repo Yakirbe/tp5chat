@@ -28,12 +28,16 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '18.17.0'
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: Clean install
+      - name: Install npm@9
+        run: npm install -g npm@9.8.1
+
+      - name: Install dependencies
         run: |
-          npm cache clean --force
-          rm -rf node_modules package-lock.json
+          npm install @vitejs/plugin-react@4.0.4
+          npm install vite@4.4.9
           npm install
 
       - name: Build
