@@ -14,32 +14,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
 
-      - name: Clean install
+      - name: Install dependencies
         run: |
-          npm cache clean --force
-          rm -rf node_modules package-lock.json
-          npm install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+          npm install -g pnpm
+          pnpm install --no-frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -47,7 +42,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
