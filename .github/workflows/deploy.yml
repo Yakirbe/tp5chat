@@ -27,12 +27,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: Install dependencies
+      - name: Clean install
         run: |
-          rm -rf node_modules
-          npm install --legacy-peer-deps
+          npm cache clean --force
+          rm -rf node_modules package-lock.json
+          npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
 
       - name: Build
         run: npm run build
