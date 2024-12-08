@@ -9,16 +9,11 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'terser',
+    minify: 'esbuild',
     rollupOptions: {
       output: {
-        manualChunks: undefined,
-        assetFileNames: 'assets/[name].[hash].[ext]'
+        manualChunks: undefined
       }
     }
-  },
-  server: {
-    port: 3000,
-    strictPort: true
   }
 }); 
