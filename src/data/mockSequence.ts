@@ -1,6 +1,12 @@
 import { MessageType } from '../types';
 import { mockPreviews } from './mockPreviews';
 
+declare global {
+  interface Window {
+    requestPermission?: (source: string) => void;
+  }
+}
+
 type MockMessage = {
   content: string;
   type: MessageType;

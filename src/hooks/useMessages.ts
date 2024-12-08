@@ -10,14 +10,10 @@ export const useMessages = () => {
     isThinking, 
     currentStep,
     addMessage,
-    setThinking,
-    incrementStep,
-    setStep,
-    hasStarted,
-    setHasStarted
+    setStep
   } = useMessageStore();
   
-  const { permissions, setCurrentDataSource, setShowPermissionRequest } = usePermissionStore();
+  const { setCurrentDataSource, setShowPermissionRequest } = usePermissionStore();
 
   const requestPermission = (dataSourceId: string) => {
     setCurrentDataSource(dataSourceId);
@@ -25,7 +21,7 @@ export const useMessages = () => {
   };
 
   // Expose requestPermission to window for mock sequence
-  (window as any).requestPermission = requestPermission;
+  window.requestPermission = requestPermission;
 
   return { 
     messages, 
