@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import { useMessageStore } from '../store/messageStore';
 import { usePermissionStore } from '../store/permissionStore';
-import { mockSequence } from '../data/mockSequence';
 import { MessageType } from '../types';
 
 export const useMessages = () => {
