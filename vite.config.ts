@@ -7,6 +7,12 @@ export default defineConfig({
   base: '/tp5chat/',
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
-  }
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name][extname]'
+      }
+    }
+  },
+  publicDir: 'public'
 }); 
