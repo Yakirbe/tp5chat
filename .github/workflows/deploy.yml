@@ -28,22 +28,19 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18.17.0'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '16'
 
-      - name: Install npm@9
-        run: npm install -g npm@9.8.1
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Install dependencies
+      - name: Deploy
         run: |
-          npm install @vitejs/plugin-react@4.0.4
-          npm install vite@4.4.9
-          npm install
-
-      - name: Build
-        run: npm run build
+          git config --global user.name $user_name
+          git config --global user.email $user_email
+          npm run deploy
         env:
-          NODE_ENV: production
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -56,5 +53,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          artifact_name: github-pages
