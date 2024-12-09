@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="120" height="40" rx="8" fill="#F8FAFC"/>
+  
+  <!-- TIER -->
+  <g fill="#2B3674" font-family="Inter, system-ui, sans-serif" font-weight="600">
+    <text x="16" y="26" font-size="20">TIER</text>
+  </g>
+  
+  <!-- 5 with dot -->
+  <g fill="#2B3674">
+    <!-- 5 -->
+    <path d="M82 12h14v3h-11v5h10v3h-10v5h11v3h-14z" fill="#2B3674"/>
+    <!-- Dot -->
+    <circle cx="100" cy="20" r="3" fill="#3B82F6"/>
+  </g>
+  
+  <!-- Decorative elements -->
+  <path d="M10 20h2M108 20h2" stroke="#E2E8F0" stroke-width="2" stroke-linecap="round"/>
+</svg> 
