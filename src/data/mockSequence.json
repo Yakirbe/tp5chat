@@ -1,0 +1,253 @@
+{
+    "sequence": [
+      {
+        "role": "assistant",
+        "content": {
+          "type": "text",
+          "text": "Hi! I'm your Monday.com AI Troubleshooter. I'll help you optimize and solve any issues with your Monday.com workspace and integrations. Press Enter to start."
+        }
+      },
+      {
+        "role": "user",
+        "content": {
+          "type": "text",
+          "text": "I need help with my React application's performance issues."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "text",
+          "text": "No problem. Let's first take a look at your current dashboard layout to understand the performance bottlenecks."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "spinner",
+          "text": "Capturing screen..."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "image",
+          "requestCapture": false
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "text",
+          "text": "From the screenshot, I can see several potential performance issues:\n\n1. A large data table rendering many rows without virtualization.\n2. Multiple real-time charts updating frequently.\n3. Complex filtering logic triggering immediate re-renders.\n\nLet's inspect your code to pinpoint the exact issue."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "terminal",
+          "steps": [
+            {
+              "command": "grep -r \"useEffect\" ./src",
+              "output": "src/components/Dashboard.tsx:  useEffect(() => {\nsrc/components/DataTable.tsx:  useEffect(() => {\nsrc/hooks/useRealTimeData.ts:  useEffect(() => {",
+              "status": "completed"
+            },
+            {
+              "command": "cat src/components/Dashboard.tsx",
+              "output": "import React, { useEffect } from 'react';\n\nexport const Dashboard = () => {\n  useEffect(() => {\n    const fetchData = async () => {\n      const result = await api.getData();\n      setData(result);\n    };\n    fetchData();\n    const interval = setInterval(fetchData, 1000);\n    return () => clearInterval(interval);\n  }, []);\n  // ...\n}",
+              "status": "completed"
+            },
+            {
+              "command": "cat src/hooks/useRealTimeData.ts",
+              "output": "export const useRealTimeData = () => {\n  useEffect(() => {\n    const ws = new WebSocket(WS_URL);\n    ws.onmessage = (event) => {\n      // Process real-time updates\n    };\n    return () => ws.close();\n  }, []);\n}",
+              "status": "completed"
+            }
+          ],
+          "current_step": 2,
+          "status": "running"
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "spinner",
+          "text": "Analyzing code..."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "code_block",
+          "language": "typescript",
+          "filename": "Dashboard.tsx",
+          "code": "useEffect(() => {\n  const fetchData = async () => {\n    const result = await api.getData();\n    setData(result);\n  };\n  fetchData();\n  const interval = setInterval(fetchData, 1000); // Polling every second\n  return () => clearInterval(interval);\n}, []);"
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "text",
+          "text": "Your dashboard is polling the API every second and re-rendering the entire component tree. This continuous polling is a major performance drain. Consider using WebSockets or on-demand fetching to reduce unnecessary updates."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "spinner",
+          "text": "Gathering runtime metrics..."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "user_data",
+          "data": {
+            "performance_metrics": {
+              "memory_usage": "1.2 GB",
+              "cpu_usage": "85%",
+              "render_time": "300ms",
+              "fps": "24"
+            },
+            "component_analysis": {
+              "total_components": 156,
+              "memoized_components": 23,
+              "pure_components": 12,
+              "heavy_components": 8
+            },
+            "render_stats": {
+              "unnecessary_renders": 342,
+              "render_depth": 8,
+              "context_consumers": 15,
+              "effect_count": 47
+            },
+            "bundle_size": {
+              "total": "2.8 MB",
+              "main_chunk": "1.2 MB",
+              "largest_module": "chart.js (450 KB)",
+              "gzip_size": "820 KB"
+            }
+          },
+          "source": "React DevTools Performance Analysis",
+          "timestamp": 1702123440000
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "text",
+          "text": "These performance metrics confirm a few key bottlenecks:\n- High CPU usage and frequent unnecessary renders suggest too many state updates.\n- The large bundle size, especially the charting library, could be slowing initial load.\n- Heavy components and deep render depth indicate complex, unoptimized component trees.\n\nNext, let’s see what vendor recommendations can tell us."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "spinner",
+          "text": "Fetching vendor recommendations..."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "vendor_data",
+          "data": {
+            "optimization_recommendations": {
+              "high_priority": [
+                "Replace polling with WebSocket",
+                "Implement virtualization for data tables",
+                "Memoize expensive computations"
+              ],
+              "medium_priority": [
+                "Code split chart components",
+                "Optimize bundle size",
+                "Add suspense boundaries"
+              ]
+            },
+            "potential_improvements": {
+              "memory_reduction": "40%",
+              "cpu_usage_reduction": "60%",
+              "render_time_reduction": "75%",
+              "bundle_size_reduction": "35%"
+            },
+            "estimated_impact": {
+              "user_experience": "High",
+              "server_load": "Medium",
+              "development_effort": "Medium",
+              "implementation_time": "3-5 days"
+            }
+          },
+          "vendor": "Performance Analyzer Pro",
+          "timestamp": 1702123450000
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "text",
+          "text": "The vendor’s recommendations align with our findings:\n- Switching from polling to WebSockets can dramatically cut unnecessary renders.\n- Virtualizing the data table will reduce the memory footprint.\n- Memoizing expensive computations and code splitting the charts will make your UI more responsive.\n\nBefore finalizing your optimization plan, let's review recent logs from the Monday.com system to ensure no schema or integration issues are contributing to performance overhead."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "spinner",
+          "text": "Retrieving system logs..."
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "user_data",
+          "data": {
+            "logs": {
+              "entries": [
+                {
+                  "id": "1",
+                  "trace_id": "MNDY-Feature-2077",
+                  "status": "success",
+                  "message": "Aggregation completed. Missing column type handled gracefully.",
+                  "timestamp": "2023-12-10T14:23:10Z"
+                },
+                {
+                  "id": "2",
+                  "trace_id": "MNDY-Feature-2078",
+                  "status": "warning",
+                  "message": "Column type mismatch detected. Fallback to string type.",
+                  "timestamp": "2023-12-10T14:23:11Z"
+                },
+                {
+                  "id": "3",
+                  "trace_id": "MNDY-Feature-2079",
+                  "status": "error",
+                  "message": "Invalid formula reference in column 'Budget'.",
+                  "timestamp": "2023-12-10T14:23:12Z"
+                },
+                {
+                  "id": "4",
+                  "trace_id": "MNDY-Feature-2080",
+                  "status": "success",
+                  "message": "Formula validation completed. All references are valid.",
+                  "timestamp": "2023-12-10T14:23:13Z"
+                }
+              ],
+              "summary": {
+                "total_entries": 4,
+                "success_count": 2,
+                "warning_count": 1,
+                "error_count": 1,
+                "time_range": "Last 5 minutes"
+              }
+            }
+          },
+          "source": "Monday.com System Logs",
+          "timestamp": 1702123700000
+        }
+      },
+      {
+        "role": "assistant",
+        "content": {
+          "type": "text",
+          "text": "The system logs show a recent warning and an error related to column types and formula references, but these issues have been resolved or worked around successfully.\n\nThis means the performance problems are primarily due to your current rendering strategy in React, rather than a backend schema or integration problem.\n\nImplementing the recommended changes—using WebSockets instead of polling, adding virtualization, and memoizing heavy computations—will likely yield the greatest performance gains."
+        }
+      }
+    ]
+  }

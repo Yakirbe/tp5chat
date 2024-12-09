@@ -1,74 +1,104 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiSend } from 'react-icons/fi';
-import { useMessages } from '../hooks/useMessages';
-import { mockSequence } from '../data/mockSequence';
-import { usePermissionStore } from '../store/permissionStore';
-import { MessageType } from '../types';
+import { MessageType, ContentType, MockMessage, MessageContent } from '../types';
+import { useMessageStore } from '../store/messageStore';
+import { captureScreen } from '../utils/screenCapture';
+import mockData from '../data/mockSequence.json';
+
+const sequence = mockData.sequence as MockMessage[];
 
 const InputArea: React.FC = () => {
-  const [input, setInput] = useState('');
-  const { addMessage, isThinking, currentStep, setStep } = useMessages();
-  const { permissions, setCurrentDataSource, setShowPermissionRequest } = usePermissionStore();
+  const { addMessage, currentStep, setStep } = useMessageStore();
+  const [terminalStep, setTerminalStep] = useState(0);
+  const [activeMessage, setActiveMessage] = useState<MockMessage | null>(null);
 
-  const handleMockSequence = () => {
-    console.log('Current step:', currentStep); // Debug log
-    const nextMessage = mockSequence[currentStep];
-    if (nextMessage) {
-      if (nextMessage.requiresPermission && !permissions[nextMessage.requiresPermission]) {
-        setCurrentDataSource(nextMessage.requiresPermission);
-        setShowPermissionRequest(true);
-        return;
-      }
+  useEffect(() => {
+    const handleKeyPress = async (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        if (activeMessage?.content.type === ContentType.Terminal) {
+          // Handle terminal step progression
+          const steps = (activeMessage.content as any).steps;
+          if (terminalStep < steps.length - 1) {
+            setTerminalStep(prev => prev + 1);
+            addMessage(activeMessage.role, {
+              ...activeMessage.content,
+              current_step: terminalStep + 1
+            });
+          } else {
+            // Move to next message when terminal steps are complete
+            setTerminalStep(0);
+            setActiveMessage(null);
+            if (currentStep < sequence.length - 1) {
+              setStep(currentStep + 1);
+            }
+          }
+        } else if (currentStep < sequence.length) {
+          const message = sequence[currentStep];
 
-      addMessage(nextMessage.content, nextMessage.type as MessageType, nextMessage.preview);
-      if (nextMessage.action) {
-        nextMessage.action();
+          // Handle screen capture request
+          if (message.content.type === ContentType.Image && 'requestCapture' in message.content) {
+            console.log('Initiating screen capture...');
+            const capture = await captureScreen();
+            if (capture) {
+              console.log('Screen captured successfully');
+              addMessage(message.role, {
+                type: ContentType.Image,
+                capture
+              });
+            } else {
+              console.log('Screen capture failed');
+              addMessage(MessageType.User, {
+                type: ContentType.Text,
+                text: "Sorry, I couldn't capture the screen."
+              });
+            }
+            setStep(currentStep + 1);
+          } else if (message.content.type === ContentType.Terminal) {
+            // Start terminal sequence
+            setActiveMessage(message);
+            addMessage(message.role, {
+              ...message.content,
+              current_step: 0
+            });
+          } else {
+            // Handle regular messages
+            addMessage(message.role, message.content);
+            setStep(currentStep + 1);
+          }
+        }
       }
-      setStep(currentStep + 1);
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [currentStep, addMessage, setStep, terminalStep, activeMessage]);
+
+  const getPlaceholder = () => {
+    if (activeMessage?.content.type === ContentType.Terminal) {
+      const steps = (activeMessage.content as any).steps;
+      return `Press Enter to run step ${terminalStep + 1}/${steps.length}...`;
     }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === 'ArrowDown') && !isThinking) {
-      e.preventDefault();
-      
-      if (input.trim()) {
-        addMessage(input.trim(), 'user');
-        setInput('');
-      } else {
-        handleMockSequence();
-      }
-    }
+    return `Press Enter to continue (${currentStep}/${sequence.length})...`;
   };
 
   return (
-    <form className="border-t bg-white p-4" onSubmit={e => e.preventDefault()}>
+    <div className="border-t bg-white p-4">
       <div className="flex items-center gap-2">
         <input
           type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Press Enter or Down Arrow to continue the conversation..."
-          disabled={isThinking}
-          className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-          autoFocus
+          value=""
+          readOnly
+          placeholder={getPlaceholder()}
+          className="flex-1 p-3 border rounded-lg bg-gray-50 text-gray-400"
         />
         <button
-          type="button"
-          disabled={isThinking || !input.trim()}
-          onClick={() => {
-            if (input.trim()) {
-              addMessage(input.trim(), 'user');
-              setInput('');
-            }
-          }}
-          className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
+          className="p-3 bg-gray-100 text-gray-400 rounded-lg"
+          disabled
         >
           <FiSend />
         </button>
       </div>
-    </form>
+    </div>
   );
 };
 

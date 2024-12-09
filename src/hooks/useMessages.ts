@@ -1,5 +1,4 @@
 import { useMessageStore } from '../store/messageStore';
-import { usePermissionStore } from '../store/permissionStore';
 import { MessageType } from '../types';
 
 export const useMessages = () => {
@@ -8,18 +7,18 @@ export const useMessages = () => {
     isThinking, 
     currentStep,
     addMessage,
-    setStep
+    setStep,
+    permissions
   } = useMessageStore();
-  
-  const { setCurrentDataSource, setShowPermissionRequest } = usePermissionStore();
 
-  const requestPermission = (dataSourceId: string) => {
-    setCurrentDataSource(dataSourceId);
-    setShowPermissionRequest(true);
+  const sendMessage = async (content: string) => {
+    if (!permissions.isGranted) {
+      console.warn('Permissions not granted');
+      return;
+    }
+
+    // ... existing send message logic
   };
-
-  // Expose requestPermission to window for mock sequence
-  window.requestPermission = requestPermission;
 
   return { 
     messages, 
@@ -30,6 +29,8 @@ export const useMessages = () => {
       if (!isThinking) {
         addMessage(content, type, preview);
       }
-    }
+    },
+    sendMessage,
+    isPermissionGranted: permissions.isGranted,
   };
 };
